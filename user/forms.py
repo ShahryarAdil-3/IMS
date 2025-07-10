@@ -25,3 +25,4 @@ class UserRegistrationForm(BaseUserCreationForm):
             return user
         
 class UserCreationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)

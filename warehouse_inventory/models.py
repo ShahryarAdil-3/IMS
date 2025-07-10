@@ -1,5 +1,5 @@
 from django.db import models
-from IMS.products.models import Product
+from products.models import Products
 
 # Create your models here.
 
@@ -13,17 +13,21 @@ class Warehouse(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return self.warehouse_name
+    
+    class Meta:
+        ordering = ['warehouse_name']
     
 class Inventory(models.Model):
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='inventory_items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inventory_stocks')
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='inventory_stocks')
     quantity = models.PositiveIntegerField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('warehouse', 'product')
         verbose_name_plural = "Inventories"
+        ordering = ['warehouse', 'product', '-updated_at']
 
     def __str__(self):
         return f"{self.product.name} in {self.warehouse.warehouse_name} - {self.quantity} units"
