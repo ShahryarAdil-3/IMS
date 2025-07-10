@@ -23,3 +23,5 @@ class UserRegistrationForm(BaseUserCreationForm):
             if commit:
                 user.save()
             return user
+        
+class UserCreationForm(forms.ModelForm):
