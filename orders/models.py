@@ -72,3 +72,16 @@ class SalesOrder(models.Model):
     def get_total_amount(self):
         return sum(item.total_price for item in self.items.all())
 
+class SalesOrderItem(models.Model):
+    sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Products, on_delete=models.PROTECT, related_name='sales_order_items')
+    quantity = models.PositiveIntegerField(default=1)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+
+    def save(self, *args, **kwargs):
+        self.total_price = self.quantity * self.selling_price
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} for SO #{self.sales_order.id}"
