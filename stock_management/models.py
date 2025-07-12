@@ -41,4 +41,36 @@ class Shipment(models.Model):
         ('returned', 'Returned'),
     ]
 
-    sales_order = models.OneToOneField(SalesOrder, on_delete=models.CASCADE, related_name='shipment', null=True, blank=True)
+    sales_order = models.OneToOneField(SalesOrder, on_delete=models.CASCADE, related_name='shipment')
+    shipped_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shipments_processed')
+    shipment_date = models.DateTimeField(null=False, blank=False)
+    carrier = models.CharField(max_length=100, blank=False, null=False)
+    tracking_number = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Shipment for SO #{self.sales_order.id} - Status: {self.status}"
+
+class Payment(models.Model):
+    METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('credit_card', 'Credit Card'),
+        ('bank_transfer', 'Bank Transfer'),
+        ('check', 'Check'),
+        ('online_payment', 'Online Payment'),
+    ]
+    sales_order = models.ForeignKey(SalesOrder, on_delete=models.CASCADE, related_name='payments')
+    payment_date = models.DateTimeField(default=timezone.now)
+    payment_method = models.CharField(max_length=50, choices=METHOD_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    received_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='payments_received')
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"payment of {self.amount} for SO #{self.sales_order.id} on {self.payment_method}"
